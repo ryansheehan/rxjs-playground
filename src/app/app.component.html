@@ -1,21 +1,8 @@
-<!-- <div class="event-data-row">
-  <div class="event">
-    <button mat-raised-button (click)="pushAlpha()">Alpha</button>
-  </div>
-  <div class="event">
-    <button mat-raised-button (click)="pushNum()">Num</button>
-  </div>
-</div> -->
-
 <div class="app-layout">
   <div class="app-input mat-elevation-z2">
-    <button mat-button (click)="pushAlpha()">Alpha</button>
-    <button mat-button (click)="pushNum()">Num</button>
+    <button mat-button *ngFor="let key of actionKeys" (click)="actions[key]()">{{key | uppercase}}</button>
   </div>
   <div class="app-content">
-    <!-- <div *ngFor="let entry of render | async">
-      {{entry.time}}
-    </div> -->
     <mat-table [dataSource]="tableData" class="mat-elevation-z2">
       <ng-container matColumnDef="{{header}}" *ngFor="let header of headers">
         <mat-header-cell *matHeaderCellDef>{{header}}</mat-header-cell>

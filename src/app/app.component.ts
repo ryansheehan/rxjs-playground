@@ -10,12 +10,11 @@ type TimestampSourceMap = {
 };
 
 class TimestampSourceMapDataSource extends DataSource<TimestampSourceMap> {
-
-  constructor(private data: Rx.Observable<TimestampSourceMap[]>) {
+  constructor(private sourceData: Rx.Observable<TimestampSourceMap[]>) {
     super();
   }
   connect(collectionViewer: CollectionViewer): Rx.Observable<TimestampSourceMap[]> {
-    return this.data;
+    return this.sourceData;
   }
   disconnect(collectionViewer: CollectionViewer) {
 
@@ -48,13 +47,28 @@ export class AppComponent {
     num: this.num$
   };
 
+  readonly actions: {[source: string]: () => void} = {
+    alpha: this.pushAlpha,
+  };
+
+  readonly actionKeys: string[];
+
   private setupPlayground() {
-    // playground here
+    // ####################################################
+    // #
+    // #       setup playground here
+    // #
+    // #####################################################
+
+    // add streams to render
     this.streams['sample'] = this.alpha$.sample(this.num$);
-    // this.streams['mapTo'] = this.streams['sample'].mapTo('true');
+
+    // add input to the imput bar
+    this.actions['num'] = this.pushNum;
   }
 
   pushAlpha() {
+    console.log(this);
     this.alpha$.next(this._alphaGen.next().value);
   }
 
@@ -66,7 +80,7 @@ export class AppComponent {
     for (let i = 0; true; i = (i + 1) % characters.length) { yield characters[i]; }
   }
 
-  private normalize(value: number, decimal = 10) {
+  private normalize(value: number, decimal = 1) {
     return Math.floor(value / decimal) * decimal;
   }
 
@@ -106,24 +120,22 @@ export class AppComponent {
       .reduce<TimestampSourceMap>(Object.assign, {time: 0})
     )
 
-    .map(v => {
-      headers.forEach(h => v[h] = v[h] || '');
-      return v;
-    })
-
     // bring everything into a single collection for the view
     .scan((acc, value) => {
       acc.push(value);
       return acc;
     }, [])
 
-    //.startWith([]);
+    // multicast the data so new subscribers do not cause duplicate data
+    .share();
 
-    this.render.subscribe(v => console.log(v));
+    // this.render.subscribe(v => console.log(v));
 
     this.tableData = new TimestampSourceMapDataSource(this.render);
 
     // insert an extra header for the timestamp
     this.headers = ['time', ...headers];
+    this.actionKeys = Object.keys(this.actions);
+    this.actionKeys.forEach(a => this.actions[a] = this.actions[a].bind(this));
   }
 }
