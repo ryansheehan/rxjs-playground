@@ -38,6 +38,8 @@ private setupPlayground() {
 
   // attach an observable to be rendered on the table
   // by assigning it to a new key in the streams object
+  this.streams['alpha'] = this.alpha$;
+  this.streams['num'] = this.num$;
   this.streams['sample'] = this.alpha$.sample(this.num$);
 
   // can attach functions to be executed with buttons on
