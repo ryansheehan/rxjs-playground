@@ -62,13 +62,13 @@ export class AppComponent {
 
     // add streams to render
     this.streams['sample'] = this.alpha$.sample(this.num$);
+    // this.streams['interval'] = Rx.Observable.interval(1000);
 
-    // add input to the imput bar
+    // add input to the input bar
     this.actions['num'] = this.pushNum;
   }
 
   pushAlpha() {
-    console.log(this);
     this.alpha$.next(this._alphaGen.next().value);
   }
 
@@ -100,8 +100,6 @@ export class AppComponent {
             time: this.normalize(Date.now() - this.startTime),
             [key]: v
           };
-
-          // headers.forEach(header => d[header] = header === key ? v : undefined);
 
           return d;
         })
