@@ -1,27 +1,65 @@
-# RxjsPlayground
+# rxjs-playground
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.4.9.
+rxjs-playground is a demo app for visualizing rxjs operators.
 
-## Development server
+![screenshot](./screencap.PNG)
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+## install
 
-## Code scaffolding
+```bash
+git clone https://github.com/ryansheehan/rxjs-playground.git
+cd rxjs-playground
+npm install
+```
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## run
 
-## Build
+```bash
+npm run start
+```
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag for a production build.
+## how to use
 
-## Running unit tests
+In [src/app/app.component.ts](https://github.com/ryansheehan/rxjs-playground/blob/master/src/app/app.component.ts), modify the setupPlayground() method
+```typescript
+private _alphaGen = this._generator('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''));
+private _numGen = this._generator('0123456789'.split(''));
+readonly alpha$ = new Rx.Subject<string>();
+readonly num$ = new Rx.Subject<string>();
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+...
 
-## Running end-to-end tests
+private setupPlayground() {
+  // #####################################################
+  // #
+  // #       setup playground here
+  // #
+  // #####################################################
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+  // attach an observable to be rendered on the table
+  // by assigning it to a new key in the streams object
+  this.streams['sample'] = this.alpha$.sample(this.num$);
 
-## Further help
+  // can attach functions to be executed with buttons on
+  // the side bar by assigning the method to a key on 
+  // the actions object.
+  this.actions['alpha'] = this.pushAlpha;
+  this.actions['num'] = this.pushNum;
+}
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+...
+
+pushAlpha() {
+  this.alpha$.next(this._alphaGen.next().value);
+}
+pushNum() {
+  this.num$.next(this._numGen.next().value);
+}
+
+private *_generator(characters: string[]): IterableIterator<string> {
+  for (let i = 0; true; i = (i + 1) % characters.length) { 
+    yield characters[i]; 
+  }
+}
+
+```
